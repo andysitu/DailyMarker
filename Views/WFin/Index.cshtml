@@ -1,0 +1,43 @@
+﻿
+@*@model List<TaskID>*@
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<a asp-controller="BasicTasks" asp-action="Create">Add Task</a>
+
+<br />
+@ViewData["taskCount"]
+<br />
+
+<div id="table_div"></div>
+
+<table id="task_table">
+    <thead>
+        <tr>
+            <th>
+                Task
+            </th>
+        </tr>
+        
+    </thead>
+        <tbody>
+            @{ 
+                List<DailyMarker.ViewModel.TaskData> tasks = ViewBag.tasks;
+            }
+            @foreach (var task in tasks)
+            {
+                @:<tr>
+                    <td>
+                    @Html.DisplayFor(modelItem => task.Name)
+                    </td>
+                @:</tr>
+            }
+        </tbody>
+</table>
+
+<script src="~/js/WFin//WTable.js"></script>
+<script src="~/js/WFin/index.js"></script>
