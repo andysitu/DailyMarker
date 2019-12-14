@@ -13,6 +13,7 @@ using DailyMarker.Models;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace DailyMarker.Controllers
 {
@@ -87,7 +88,7 @@ namespace DailyMarker.Controllers
                 return null;
         }
 
-        public string Test()
+        public string Get_Tasks_Json()
         {
             string s = "";
             UserAccount u = GetUser();
@@ -100,14 +101,40 @@ namespace DailyMarker.Controllers
                 };
                 var tasks = GetTasks();
 
-                List<string> tasks_name = new List<string>();
-                foreach (DailyTask d in tasks)
-                {
-                    tasks_name.Add(d.name);
-                }
+                DateTime date = DateTime.Now;
+                var firstDay = new DateTime(date.Year, date.Month, 1);
+                var lastDay = firstDay.AddMonths(1).AddDays(-1);
 
-                var test = JsonSerializer.Serialize(tasks_name, tasks_name.GetType(), options);
-                return test;
+                Dictionary<string, Dictionary<string, string>> tasks_dictionary =
+                    new Dictionary<string, Dictionary<string, string>>();
+
+                int task_id;
+                Dictionary<string, string> task_dict;
+                foreach (DailyTask t in tasks)
+                {
+                    task_id = t.Id;
+                    task_dict = new Dictionary<string, string>();
+                    _context.DailyTask_TaskDates.Where(
+                        dt_t => dt_t.DailyTaskId == task_id &&
+                        dt_t.TaskDate.TDate >= firstDay &&
+                        dt_t.TaskDate.TDate <= lastDay).Load();
+                    string task_dates = "";
+                    if (t.DailyTask_TaskDates != null)
+                    {
+                        foreach (DailyTask_TaskDate dt_t in t.DailyTask_TaskDates)
+                        {
+                            _context.TaskDates.Where(td => dt_t.TaskDateId == td.Id).Load();
+                            TaskDate td = dt_t.TaskDate;
+                            task_dates += td.TDate.ToString() + "_";
+                        }
+                    }
+
+                    task_dict.Add("name", t.name);
+                    task_dict.Add("date_string", task_dates);
+                    tasks_dictionary.Add(t.Id.ToString(), task_dict);
+                }
+                var tasks_json = JsonSerializer.Serialize(tasks_dictionary, tasks_dictionary.GetType(), options);
+                return tasks_json;
             }
             return s;
         }
@@ -116,7 +143,6 @@ namespace DailyMarker.Controllers
         public ActionResult Index()
         {
             var userId = _userManager.GetUserId(User);
-            
             return View();
         }
 

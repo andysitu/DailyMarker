@@ -1,0 +1,36 @@
+﻿@model DailyMarker.Models.DailyTask_TaskDate
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>DailyTask_TaskDate</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DailyTaskId" class="control-label"></label>
+                <select asp-for="DailyTaskId" class ="form-control" asp-items="ViewBag.DailyTaskId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="TaskDateId" class="control-label"></label>
+                <select asp-for="TaskDateId" class ="form-control" asp-items="ViewBag.TaskDateId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
