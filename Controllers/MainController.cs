@@ -125,8 +125,9 @@ namespace DailyMarker.Controllers
                         {
                             _context.TaskDates.Where(td => dt_t.TaskDateId == td.Id).Load();
                             TaskDate td = dt_t.TaskDate;
-                            task_dates += td.TDate.ToString() + "_";
+                            task_dates += td.TDate.ToString("yyyy-MM-dd") + "_";
                         }
+                        task_dates.TrimEnd('_');
                     }
 
                     task_dict.Add("name", t.name);

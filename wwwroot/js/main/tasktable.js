@@ -1,20 +1,36 @@
 ﻿class TaskTable {
     constructor() {
-        this.num_days = 0;
-        this.tasks_tbody = document.getElementById("tasks_tbody");
-        this.create_header();
+        this.tasks = {};
+
+        this.year;
+        this.month;
+        this.num_days;
+        this.tasks_tbody;
+        
+        this.load();
         this.get_tasks();
+    }
+    load() {
+        this. tasks_tbody = document.getElementById("tasks_tbody")
+        this.set_date();
+        this.create_header();
+    }
+    // Sets year, month, & num_days
+    set_date() {
+        var d = new Date(),
+            month = d.getMonth(),
+            year = d.getFullYear();
+
+        this.month = month;
+        this.year = year;
+
+        var d1 = new Date(year, month + 1, 0);
+        this.num_days = d1.getDate();
     }
 
     create_header() {
         var thead = document.getElementById("table_thead");
-
-        var d = new Date(),
-            month = d.getMonth(),
-            year = d.getFullYear();
-        var d1 = new Date(year, month + 1, 0);
-        this.num_days = d1.getDate();
-
+        
         var headerArr = ["Task"];
         for (var i = 1; i <= this.num_days; i++) {
             headerArr.push(i);
@@ -27,33 +43,25 @@
         TController.get_tasks(this.add_tasks.bind(this));
     }
 
+    create_Task(id, name) {
+        this.tasks[id] = new Task(id, name, this.num_days);
+    }
+
     add_tasks(tasks) {
-        console.log(tasks);
         var id,
-            task, name, tr;
+            taskObj, name, tr, dates, i, date_string;
 
         for (id in tasks) {
-            task = tasks[id];
+            taskObj = tasks[id];
 
-            name = task.name;
-            tr = this.create_tasks_tr(id, name);
+            name = taskObj.name;
+
+            this.create_Task(id, name);
+
+            tr = this.tasks[id].create_tasks_tr();
             this.tasks_tbody.append(tr);
+
+            this.tasks[id].add_dates(taskObj.dates);
         }
     }
-
-    create_tasks_tr(id, name) {
-        var tr = document.createElement("tr"),
-            td = document.createElement("td");
-
-        td.innerText = name;
-        td.setAttribute("value", id);
-        tr.append(td);
-
-        for (var i = 0; i < this.num_days; i++) {
-            td = document.createElement("td");
-            tr.append(td);
-        }
-        return tr;
-    }
-
 }

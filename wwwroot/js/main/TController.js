@@ -31,7 +31,23 @@ var TController = {
     get_tasks(callback) {
         TController.get(window.location.href + '/get_tasks_json'
         ).then(function (response) {
-            callback(JSON.parse(response));
+            var tasks = {},
+                result = JSON.parse(response),
+                t, r, id, dates;
+            for (id in result) {
+                r = result[id]
+                t = tasks[id] = {};
+                t.name = r.name;
+
+                dates = r.date_string.split("_");
+
+                if (dates[dates.length - 1] == "") {
+                    dates.pop();
+                }
+                t.dates = dates;
+            }
+
+            callback(tasks);
         });
     }
 };
