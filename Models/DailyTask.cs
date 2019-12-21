@@ -12,7 +12,6 @@ namespace DailyMarker.Models
 
         public int TableTaskId { get; set; }
         public TableTask TableTask { get; set; }
-
         public List<DailyTask_TaskDate> DailyTask_TaskDates { get; set; }
     }
 }

@@ -70,5 +70,5 @@ var helper = {
     },
     get_date_string: function (year, month, date) {
         return year + "_" + month + "_" + date;
-    }
+    },
 };

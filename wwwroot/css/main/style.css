@@ -1,3 +1,41 @@
 ﻿.date-selected {
     background-color: green;
 }
+
+.taskdate-td {
+    cursor: pointer;
+}
+
+.taskdate-td:hover {
+    outline: 1px auto;
+}
+
+.taskname-td:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.menu {
+    background-color: white;
+    width: 120px;
+    box-shadow: 0 4px 5px 3px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    display: none;
+}
+
+ul.menu-options {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0px 0px 0px 0px;
+}
+
+.menu-option {
+    font-weight: 500;
+    font-size: 14px;
+    padding: 10px 40px 10px 20px;
+    cursor: pointer;
+}
+
+.menu-option:hover {
+background: rgba(0, 0, 0, 0.2);
+}

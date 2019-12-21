@@ -17,24 +17,25 @@ namespace DailyMarker.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
             //modelBuilder.Entity<UserAccount>()
             //    .HasOne(u => u.TableTask)
             //    .WithOne(tt => tt.UserAccount)
             //    .HasForeignKey<TableTask>(t => t.UserAccount);
-            //    modelBuilder.Entity<DailyTask_TaskDate>()
-            //        .HasKey(dt_td => new { dt_td.DailyTaskId, dt_td.TaskDateId });
 
-            //    modelBuilder.Entity<DailyTask_TaskDate>()
-            //        .HasOne(dt_td => dt_td.DailyTask)
-            //        .WithMany(dt => dt.DailyTask_TaskDates)
-            //        .HasForeignKey(dt_td => dt_td.DailyTaskId);
+            //modelBuilder.Entity<DailyTask_TaskDate>()
+            //    .HasKey(dt_td => new { dt_td.DailyTaskId, dt_td.TaskDateId });
 
-            //    modelBuilder.Entity<DailyTask_TaskDate>()
-            //        .HasOne(dt_td => dt_td.TaskDate)
-            //        .WithMany(td => td.DailyTask_TaskDates)
-            //        .HasForeignKey(dt_td => dt_td.TaskDateId);
+            //modelBuilder.Entity<DailyTask_TaskDate>()
+            //    .HasOne(dt_td => dt_td.DailyTask)
+            //    .WithMany(dt => dt.DailyTask_TaskDates)
+            //    .HasForeignKey(dt_td => dt_td.DailyTaskId);
+
+            //modelBuilder.Entity<DailyTask_TaskDate>()
+            //    .HasOne(dt_td => dt_td.TaskDate)
+            //    .WithMany(td => td.DailyTask_TaskDates)
+            //    .HasForeignKey(dt_td => dt_td.TaskDateId);
+
+            base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<UserAccount> UserAccounts { get; set; }

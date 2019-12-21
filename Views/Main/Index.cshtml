@@ -1,4 +1,14 @@
-﻿@section headfiles{
+﻿@{
+    ViewData["Title"] = "Main";
+}
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@section headfiles{
     <script src="~/js/main/helper_functions.js"></script>
     <script src="~/js/main/task.js"></script>
     <script src="~/js/main/tasktable.js"></script>
@@ -8,8 +18,36 @@
     <link rel="stylesheet" type="text/css" href="~/css/main/style.css" />
 }
 
+<script>
+    var get_tasks_url = '@Url.Action("Get_Tasks_Json", "Main")',
+        edit_task_url = '@Url.Action("Edit_TaskName_Ajax", "Main")',
+        delete_task_url = '@Url.Action("Delete_Task_Ajax", "Main")';;
+</script>
 
+<input type="hidden" id="RequestVerificationToken"
+       name="RequestVerificationToken" value="@GetAntiXsrfRequestToken()">
+
+<div class="row">
+    <div class="col col-sm-1">
+        <button type="button" class="btn btn-secondary" id="add-btn">+</button>
+    </div>
+    <div class="col-md-auto">
+        <button type="button" class="btn btn-secondary"
+                id="prev-month-btn"><</button>
+        <span class="badge badge-secondary"
+              id="datetext-container"></span>
+        <button type="button" class="btn btn-secondary"
+                id="next-month-btn">></button>
+    </div>
+</div>
 <table class="table">
     <thead id="table_thead"></thead>
     <tbody id="tasks_tbody"></tbody>
 </table>
+
+<div class="menu" id="menu">
+    <ul class="menu-options">
+        <li class="menu-option" value="edit">Edit</li>
+        <li class="menu-option" value="delete">Delete</li>
+    </ul>
+</div>

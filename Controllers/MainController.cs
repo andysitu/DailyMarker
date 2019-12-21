@@ -70,27 +70,106 @@ namespace DailyMarker.Controllers
             }
         }
 
+        private TableTask GetTable()
+        {
+            UserAccount u = GetUser();
+            if (u != null)
+            {
+                TableTask tt = _context.TableTasks.
+                    Where(tt => tt.UserAccountId.Equals(u.Id)).First();
+
+                _context.Entry(tt).Collection(p => p.DailyTasks).Load();
+
+                return tt;
+            }
+            else
+                return null;
+        }
+
         private List<DailyTask> GetTasks()
         {
             UserAccount u = GetUser();
             if (u != null)
             {
-                var tabletasks = from t in _context.TableTasks
-                                 select t;
+                var tt = GetTable();
 
-                tabletasks = tabletasks.Where(tt => tt.UserAccountId.Equals(u.Id));
-                TableTask tt = tabletasks.First();
                 _context.Entry(tt).Collection(p => p.DailyTasks).Load();
-
                 return tt.DailyTasks;
             }
             else
                 return null;
         }
 
-        public string Get_Tasks_Json()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit_TaskName_Ajax(
+            [FromForm] string task_name, [FromForm] int task_id)
         {
-            string s = "";
+            if (task_name != null && task_name.Length > 0
+                && !String.IsNullOrEmpty(task_id.ToString()))
+            {
+                UserAccount u = GetUser();
+                if (u != null)
+                {
+                    var tt = GetTable();
+
+                    var task = _context.DailyTasks.First(
+                        d => d.TableTaskId == tt.Id &&
+                            d.Id == task_id
+                        );
+                    task.name = task_name;
+                    _context.Update(task);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            return Json(new { });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete_Task_Ajax(
+            [FromForm] int task_id)
+        {
+            if (!String.IsNullOrEmpty(task_id.ToString()))
+            {
+                UserAccount u = GetUser();
+                if (u != null)
+                {
+                    var tt = GetTable();
+
+                    var task = _context.DailyTasks.First(
+                        d => d.TableTaskId == tt.Id &&
+                            d.Id == task_id
+                        );
+                    _context.DailyTasks.Remove(task);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            return Json(new { Delete = "delete" });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Add_Task_Ajax([FromForm] string task_name)
+        {
+            if (task_name != null && task_name.Length > 0)
+            {
+                var tt = GetTable();
+                var task = new DailyTask
+                {
+                    name = task_name,
+                    TableTaskId = tt.Id
+                };
+                _context.Add(task);
+                await _context.SaveChangesAsync();
+
+                return Json(new { Name = task_name, Id =  task.Id});
+            }
+            return Json(new { });            
+        }
+
+        public string Get_Tasks_Json(int year, int month)
+        {
             UserAccount u = GetUser();
             if (u != null)
             {
@@ -101,8 +180,15 @@ namespace DailyMarker.Controllers
                 };
                 var tasks = GetTasks();
 
-                DateTime date = DateTime.Now;
-                var firstDay = new DateTime(date.Year, date.Month, 1);
+                if (String.IsNullOrEmpty(year.ToString()) || 
+                    String.IsNullOrEmpty(month.ToString()))
+                {
+                    DateTime date = DateTime.Now;
+                    year = date.Year;
+                    month = date.Month;
+                }
+                
+                var firstDay = new DateTime(year, month, 1);
                 var lastDay = firstDay.AddMonths(1).AddDays(-1);
 
                 Dictionary<string, Dictionary<string, string>> tasks_dictionary =
@@ -117,7 +203,7 @@ namespace DailyMarker.Controllers
                     _context.DailyTask_TaskDates.Where(
                         dt_t => dt_t.DailyTaskId == task_id &&
                         dt_t.TaskDate.TDate >= firstDay &&
-                        dt_t.TaskDate.TDate <= lastDay).Load();
+                        dt_t.TaskDate.TDate <= lastDay).Include(td_td=>td_td.TaskDate).Load();
                     string task_dates = "";
                     if (t.DailyTask_TaskDates != null)
                     {
@@ -137,8 +223,76 @@ namespace DailyMarker.Controllers
                 var tasks_json = JsonSerializer.Serialize(tasks_dictionary, tasks_dictionary.GetType(), options);
                 return tasks_json;
             }
-            return s;
+            return "{}";
         }
+
+        public class TaskDateRequestModel
+        {
+            public int task_id { get; set; }
+            public int day { get; set; }
+            public int month { get; set; }
+            public int year { get; set; }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Set_Taskdate_Ajax([FromBody] TaskDateRequestModel t)
+            public string Set_Taskdate_Ajax([FromBody] TaskDateRequestModel t)
+        {
+            if (t != null)
+            {
+                UserAccount u = GetUser();
+
+                int task_id = t.task_id;
+
+                // Check that the task belongs to user
+                var task = _context.DailyTasks.Include(
+                            t=>t.TableTask
+                        ).First(
+                            t => t.Id == task_id);
+                if (task.TableTask.UserAccountId != u.Id)
+                {
+                    return "";
+                } 
+
+                var d = new DateTime(t.year, t.month, t.day);
+                var td = _context.TaskDates.
+                    FirstOrDefault(dt => dt.TDate == d);
+
+                if (td == null)
+                {
+                    td = new TaskDate { TDate = d };
+                    _context.Add(td);
+                    _context.SaveChanges();
+                }
+
+                var dt_td = _context.DailyTask_TaskDates.
+                    FirstOrDefault(dt => dt.DailyTaskId == task_id &&
+                        dt.TaskDateId == td.Id
+                    );
+
+                if (dt_td == null)
+                {
+                    dt_td = new DailyTask_TaskDate
+                    {
+                        DailyTaskId = task_id,
+                        //DailyTask = task,
+                        TaskDateId = td.Id,
+                        //TaskDate = td
+                    };
+                    _context.Add(dt_td);
+                    _context.SaveChanges();
+                } else  // Remove
+                {
+                    _context.DailyTask_TaskDates.Remove(dt_td);
+                    _context.SaveChanges();
+                }
+
+                return t.task_id.ToString();
+            }
+            return "";
+        }
+
 
         // GET: Main
         public ActionResult Index()
@@ -147,79 +301,5 @@ namespace DailyMarker.Controllers
             return View();
         }
 
-        // GET: Main/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
-        // GET: Main/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Main/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add insert logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Main/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: Main/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
-        // GET: Main/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Main/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
     }
 }
