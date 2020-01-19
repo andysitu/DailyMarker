@@ -6,11 +6,20 @@
     cursor: pointer;
 }
 
-
 .taskdate-td:hover {
     outline: 1px auto;
 }
 
+@media only screen and (min-width: 1400px) {
+    .taskname-td {
+        width: 10%
+    }
+}
+@media only screen and (max-width: 1399px) {
+    .taskname-td {
+        width: 14%
+    }
+}
 .taskname-td:hover {
     cursor: pointer;
     background-color: rgba(0, 0, 0, 0.1);
