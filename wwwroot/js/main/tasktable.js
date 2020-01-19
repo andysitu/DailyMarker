@@ -113,7 +113,7 @@ class TaskTable {
         this.tasks_tbody.append(tr);
         // Selected/Clicked dates for the task
         // Added here because TR needs to be added first
-        if (selected_dates_arr.length > 0) { 
+        if (selected_dates_arr && selected_dates_arr.length > 0) { 
             this.tasks[id].add_dates(selected_dates_arr);
         }
             
