@@ -5,6 +5,10 @@
     window.addEventListener("click", function (e) {
         contextMenu.hide_menu(e);
     }, true);
+    window.addEventListener("contextmenu", function (e) {
+        // Right click also disables task contextmenu
+        contextMenu.hide_menu(e);
+    }, false);
 });
 
 // Controller-like object for Table
