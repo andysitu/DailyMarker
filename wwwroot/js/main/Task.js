@@ -1,4 +1,7 @@
-﻿class Task {
+﻿// Task Class that handles the task row of the table
+// Note: Already selected dates is set by TaskTable after creation
+//  of the task because the TD&TR elements has to exist first
+class Task {
     constructor(id, name, num_days, dates_obj) {
         this.id = parseInt(id);
         this.name = name;
@@ -17,14 +20,14 @@
         }
     }
 
+    get_td_id(day) { return `td-${this.id}-${day}`; }
+    get_tr_id() { return `tr-${this.id}`; }
+
     change_name(new_name) {
         this.name = new_name;
         var td = document.getElementById("task-td-" + this.id);
         td.innerText = new_name;
     }
-
-    get_td_id(day) { return `td-${this.id}-${day}`; }
-    get_tr_id() { return `tr-${this.id}`; }
     // Set td for the date to either selected or unselected
     set_td(day, status = null) {
         if (day === null)
@@ -72,7 +75,7 @@
             }
         }
     }
-
+    // Add click handler for context menu for the task
     edit_task_contextmenu(task_td) {
         task_td.addEventListener("click",
             contextMenu.show_menu.bind(contextMenu));

@@ -107,13 +107,14 @@ class TaskTable {
         }
     }
 
-    add_task(id, name, dates_obj) {
-        this.create_Task(id, name, dates_obj); // Creates Task Class Object
-        // A
+    add_task(id, name, selected_dates_arr) {
+        this.create_Task(id, name); // Creates Task Class Object
         var tr = this.tasks[id].create_task_tr();
         this.tasks_tbody.append(tr);
-        if (dates_obj) { // Selected/Clicked dates for the task
-            this.tasks[id].add_dates(dates_obj);
+        // Selected/Clicked dates for the task
+        // Added here because TR needs to be added first
+        if (selected_dates_arr.length > 0) { 
+            this.tasks[id].add_dates(selected_dates_arr);
         }
             
     }
