@@ -1,8 +1,9 @@
 ﻿window.addEventListener("load", function (e) {
     TController.load();
     contextMenu.load();
-
+    
     window.addEventListener("click", function (e) {
+        // Clicking anywhere except task will hide contextmenu for it
         contextMenu.hide_menu(e);
     }, true);
     window.addEventListener("contextmenu", function (e) {
@@ -11,7 +12,7 @@
     }, false);
 });
 
-// Controller-like object for Table
+// Controller-like object for Table. Creates TaskTable which creates Tasks
 // Calls the async requests to the server
 var TController = {
     tasktable: null,
@@ -70,6 +71,7 @@ var TController = {
             callback(tasks);
         });
     },
+    // Used by Task Class, which also provides the callback
     set_taskdate(task_id, day_value, callback) {
         var xhr = new XMLHttpRequest();
         if (!get_tasks_url)
@@ -94,6 +96,7 @@ var TController = {
             year: tt.year,
         }));
     },
+    // Used by Task Class, which also provides the callback
     create_task(task_name, addtask_callback) {
         var that = TController;
         var xhr = new XMLHttpRequest();
@@ -118,6 +121,7 @@ var TController = {
         fd.append("task_name", task_name);
         xhr.send(fd);
     },
+    // Options (eg delete, edit name) for Tasks. Used by contextMenu.
     select_menuOption(taskId, option) {
         if (option == "delete") {
             this.delete_task(taskId);
@@ -148,7 +152,7 @@ var TController = {
         fd.append("task_id", taskId);
         xhr.send(fd);
     },
-    edit_taskname(taskId, task_name) {
+    edit_taskname(taskId, new_task_name) {
         var that = this;
         var xhr = new XMLHttpRequest();
         if (!add_task_url)
@@ -161,12 +165,12 @@ var TController = {
             if (xhr.status == 200) {
                 var taskObj = JSON.parse(xhr.response);
                 
-                that.tasktable.tasks[taskId].change_name(task_name);
+                that.tasktable.tasks[taskId].change_name(new_task_name);
             }
         }
 
         var fd = new FormData();
-        fd.append("task_name", task_name);
+        fd.append("new_task_name", new_task_name);
         fd.append("task_id", taskId);
         xhr.send(fd);
     }

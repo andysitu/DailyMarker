@@ -4,6 +4,7 @@
         this.set_click_option();
     },
     visible_status: false,
+    // Toggling showing/hiding context menu
     toggleMenu(command) {
         menu.style.display = (command === "show") ? "block" : "none";
         this.visible_status = (command === "show") ? true : false;
