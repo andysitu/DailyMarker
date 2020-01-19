@@ -7,12 +7,15 @@
     }, true);
 });
 
+// Controller-like object for Table
+// Calls the async requests to the server
 var TController = {
     tasktable: null,
     load() {
         this.tasktable = new TaskTable();
         this.tasktable.load_table();
     },
+    // Helper function for Promise with getting url
     get(url) {
         return new Promise(function (resolve, reject) {
             var req = new XMLHttpRequest();
@@ -34,6 +37,7 @@ var TController = {
             req.send();
         });
     },
+    // Gets tasks dictionary & feeds it to callback function
     get_tasks(callback) {
         var url = window.location.href + '/get_tasks_json';
         url += "?year=" + this.tasktable.year
@@ -41,19 +45,22 @@ var TController = {
         TController.get(url
         ).then(function (response) {
             var tasks = {},
+                // Result converted to JSON for callback
                 result = JSON.parse(response),
-                t, r, id, dates;
+                task, r, id, dates;
+            // Split dates_string (1 string contains all the clicked dates)
+            // into array
             for (id in result) {
                 r = result[id]
-                t = tasks[id] = {};
-                t.name = r.name;
+                task = tasks[id] = {};
+                task.name = r.name;
 
                 dates = r.date_string.split("_");
 
                 if (dates[dates.length - 1] == "") {
                     dates.pop();
                 }
-                t.dates = dates;
+                task.dates = dates;
             }
 
             callback(tasks);

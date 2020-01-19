@@ -1,11 +1,16 @@
-﻿class TaskTable {
+﻿/**
+ * Overall class that controls the frontend table displaying 
+ * tasks. The actual tasks have separate class in Task, which
+ * TaskTable contains in tasks dictionary.
+ */
+class TaskTable {
     constructor() {
-        this.tasks = {};
+        this.tasks = {}; // Contains Tasks class objects
 
         this.year;
         this.month;
         this.num_days;
-        this.tasks_tbody;
+        this.tasks_tbody; // Points to HTML element for easier ref.
 
         this.set_date();
     }
@@ -13,10 +18,11 @@
     load_table() {
         this.tasks_tbody = document.getElementById("tasks_tbody");
         this.add_addtask_handler();
-        this.add_monthbtn_handler();
+        this.add_chgMonBtn_handler();
 
         this.load_tasks();
     }
+    // Replaces the header dates & reloads the tasks
     load_tasks() {
         this.create_header();
         this.clear_tasks();
@@ -28,8 +34,8 @@
         this.set_date(this.year, month);
         this.load_tasks();
     }
-
     // Sets year, month, & num_days
+    // and calls show_date to display it in the page
     set_date(year, month) {
         if (year == null) {
             var d = new Date(),
@@ -43,31 +49,40 @@
         this.num_days = d1.getDate();
         this.show_date(d1);
     }
-
+    // Changes the year & month on the webpage
+    // by id "datetext-container".
+    // Might need changing later to have reference rather than hardcoded id
     show_date(dateObj) {
         const month = dateObj.toLocaleString('default', { month: 'long' }),
             year = dateObj.getFullYear();
         var date_div = document.getElementById("datetext-container");
         date_div.innerText = month + " " + year;
     }
-
+    // Removes the old headers & reloads it
+    // Header contains "Tasks" th & dates
+    // Uses element_maker.create_header_row to get tr element
     create_header() {
+        // Removes children of thead element
         var thead = document.getElementById("table_thead");
         while (thead.firstChild)
             thead.removeChild(thead.firstChild);
-        
+
+        // Creates array with date integers
         var headerArr = ["Task"];
         for (var i = 1; i <= this.num_days; i++) {
-            headerArr.push(i);
+            if (i < 10)
+                headerArr.push("0" + i.toString());
+            else
+                headerArr.push(i);
         }
         var tr = element_maker.create_header_row(headerArr);
         thead.append(tr);
     }
-
+    // Runs TController.get_tasks & uses add_tasks as callback
     get_tasks() {
         TController.get_tasks(this.add_tasks.bind(this));
     }
-
+    // Creates Task Class Object
     create_Task(id, name) {
         this.tasks[id] = new Task(id, name, this.num_days);
     }
@@ -81,8 +96,9 @@
     }
 
     clear_tasks() {
-        var t;
-        for (taskId in this.tasks) {
+        var t, taskId,
+            tasks = this.tasks;
+        for (taskId in tasks) {
             this.remove_task(taskId);
         }
         t = this.tasks_tbody;
@@ -92,27 +108,29 @@
     }
 
     add_task(id, name, dates_obj) {
-        this.create_Task(id, name);
-
+        this.create_Task(id, name, dates_obj); // Creates Task Class Object
+        // A
         var tr = this.tasks[id].create_task_tr();
         this.tasks_tbody.append(tr);
-        if (dates_obj)
+        if (dates_obj) { // Selected/Clicked dates for the task
             this.tasks[id].add_dates(dates_obj);
+        }
+            
     }
+    // Acts as callback in TController.get_tasks
+    // Runs add_task for each tasks
+    add_tasks(tasks_dict) {
+        var id, taskObj, name;
 
-    add_tasks(tasks) {
-        var id,
-            taskObj, name;
-
-        for (id in tasks) {
-            taskObj = tasks[id];
+        for (id in tasks_dict) {
+            taskObj = tasks_dict[id];
 
             name = taskObj.name;
 
             this.add_task(id, name, taskObj.dates);
         }
     }
-
+    // Adds Click Handler to Add a task
     add_addtask_handler() {
         var btn = document.getElementById("add-btn");
         btn.addEventListener("click", function (e) {
@@ -123,8 +141,8 @@
             }
         }.bind(this));
     }
-
-    add_monthbtn_handler() {
+    // Add click handlers to change to prev/next month
+    add_chgMonBtn_handler() {
         var prevbtn = document.getElementById("prev-month-btn"),
             nextbtn = document.getElementById("next-month-btn");
         prevbtn.addEventListener("click", function (e) {

@@ -1,12 +1,12 @@
 ﻿class Task {
-    constructor(id, name, num_days) {
+    constructor(id, name, num_days, dates_obj) {
         this.id = parseInt(id);
         this.name = name;
         this.num_days = num_days;
         // Key: [int], 
         this.dates = {};
     }
-
+    // Dates are selected/clicked dates
     add_dates(date_string_arr) {
         var day, date_string, i;
         for (i = 0; i < date_string_arr.length; i++) {
@@ -23,13 +23,9 @@
         td.innerText = new_name;
     }
 
-    get_td_id(day) {
-        return "td-" + this.id + "-" + day;
-    }
-    get_tr_id() {
-        return "tr-" + this.id;
-    }
-
+    get_td_id(day) { return `td-${this.id}-${day}`; }
+    get_tr_id() { return `tr-${this.id}`; }
+    // Set td for the date to either selected or unselected
     set_td(day, status = null) {
         if (day === null)
             return;
@@ -44,7 +40,6 @@
             td.classList.remove("date-selected");
         }   
     }
-
     create_task_tr() {
         var tr = document.createElement("tr"),
             td = document.createElement("td");
@@ -66,10 +61,8 @@
             tr.append(td);
             td.addEventListener("click", this.task_listener.bind(this));
         }
-        
         return tr;
     }
-
     task_listener(e) {
         var td = e.target;
         if (td.classList.contains("taskdate-td")) {

@@ -12,6 +12,7 @@
     }
 };
 
+// Helper function object
 var helper = {
     num_days(year, month) {
         var first_date = new Date(1, month, year),

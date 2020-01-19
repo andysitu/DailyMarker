@@ -168,6 +168,7 @@ namespace DailyMarker.Controllers
             return Json(new { });            
         }
 
+        // Gets Dictionary of the tasks asychronously only
         public string Get_Tasks_Json(int year, int month)
         {
             UserAccount u = GetUser();
@@ -292,7 +293,6 @@ namespace DailyMarker.Controllers
             }
             return "";
         }
-
 
         // GET: Main
         public ActionResult Index()
